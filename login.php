@@ -26,23 +26,30 @@
           if($statement->execute()){// execute the query if the status is OK;we move to an other line 
             if($statement->rowCount() === 1){//rowCount will render the number of rows found related to the used query after INSESRT, DELETE and UPDATE methods;
              
-              if($row = $statement->fetch()){ // fetch the exixsted user and store it into row variable
+              if($row = $statement->fetch()){ // fetch the existed user and store it into row variable
                 $id=$row['ID'];
                 $usern=$row['username'];
                 $hashed_password = $row['password'];
-                if(password_verify($password, $hashed_password)){//cehck if the stored password in DB is te same as the entered plain password ny the user;
-                  session_start();// starting new session;
+                //cehck if the stored password in DB is te same as the entered plain password ny the user;
+                if(password_verify($password, $hashed_password)){ 
+                  // starting new session;
+                  session_start();
                 $_SESSION['loggedin'] = true;
                 $_SESSION['id'] = $id;
                 $_SESSION['username'] = $usern;
                 header('location:/php-auth/index.php');//redirect to home page;           
                 }else{
-                  $login_err = 'Username or password are incorrect';
+                  $login_err = 'Le nom d\'utilisateur ou le mot de passe sont incorrects';
                 }
               }else{
-                $login_err = 'Username or password are incorrect';
+                $login_err = 'Le nom d\'utilisateur ou le mot de passe sont incorrects';
               }
-            } //// number of rows after INSERT DELET AND UPDATE
+              //// number of rows after INSERT DELET AND UPDATE
+            } else{
+              $login_err = 'aucun utilisateur a été trouvé avec ce nom';
+            }
+          }else{
+            $login_err = 'Une erreur s\'est produite. Veuillez réessayer';
           }
         }
       }
@@ -66,6 +73,11 @@
 <?php include_once('./header.php') ?>
     <section class="section-form">
     <form class="form" action="/php-auth/login.php"  method="POST">
+    <h2 style="color:red;"><?php
+    if(!empty($login_err)){
+      echo $login_err;
+    }
+    ?></h2>
   <div class="mb-3">
     <label for="username" class="form-label">Nom d'utilisateur</label>
     <input name="username" type="text" class="form-control" id="username" aria-describedby="emailHelp">
